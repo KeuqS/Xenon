@@ -116,6 +116,20 @@ class DevelopmentConfig:
 
 
 @dataclass
+class AutoRouteConfig:
+    """智能路由配置。"""
+
+    # XENON_AUTO_ROUTE: 启用智能路由
+    enabled: bool = False
+    # XENON_AUTO_ROUTE_CONFIDENCE: 低于此置信度时不切换范式
+    confidence_threshold: float = 0.6
+    # 是否在切换范式时通知用户
+    notify_user: bool = True
+    # 是否只在新范式更强时切换
+    switch_only_on_improvement: bool = True
+
+
+@dataclass
 class IntentClassifierConfig:
     """意图分类器配置。
 
@@ -146,6 +160,7 @@ class SystemConfig:
     paths: PathsConfig = field(default_factory=PathsConfig)
     interaction: InteractionConfig = field(default_factory=InteractionConfig)
     development: DevelopmentConfig = field(default_factory=DevelopmentConfig)
+    auto_route: AutoRouteConfig = field(default_factory=AutoRouteConfig)
     intent_classifier: IntentClassifierConfig = field(
         default_factory=IntentClassifierConfig
     )
@@ -358,6 +373,7 @@ def _merge_config(file_data: dict[str, Any]) -> SystemConfig:
     paths_data = _section(file_data, "paths")
     interaction_data = _section(file_data, "interaction")
     development_data = _section(file_data, "development")
+    auto_route_data = _section(file_data, "auto_route")
     intent_classifier_data = _section(file_data, "intent_classifier")
 
     default_credentials = str(Path.home() / ".xenon" / "credentials.yaml")
@@ -487,6 +503,31 @@ def _merge_config(file_data: dict[str, Any]) -> SystemConfig:
         ),
     )
 
+    auto_route = AutoRouteConfig(
+        enabled=_get_bool_env(
+            "XENON_AUTO_ROUTE",
+            _coerce_bool(auto_route_data.get("enabled"), False, "auto_route.enabled"),
+        ),
+        confidence_threshold=_get_float_env(
+            "XENON_AUTO_ROUTE_CONFIDENCE",
+            _coerce_float(
+                auto_route_data.get("confidence_threshold"),
+                0.6,
+                "auto_route.confidence_threshold",
+            ),
+        ),
+        notify_user=_coerce_bool(
+            auto_route_data.get("notify_user"),
+            True,
+            "auto_route.notify_user",
+        ),
+        switch_only_on_improvement=_coerce_bool(
+            auto_route_data.get("switch_only_on_improvement"),
+            True,
+            "auto_route.switch_only_on_improvement",
+        ),
+    )
+
     intent_classifier = IntentClassifierConfig(
         enabled=_get_bool_env(
             "XENON_INTENT_CLASSIFIER_ENABLED",
@@ -530,6 +571,7 @@ def _merge_config(file_data: dict[str, Any]) -> SystemConfig:
         paths=paths,
         interaction=interaction,
         development=development,
+        auto_route=auto_route,
         intent_classifier=intent_classifier,
     )
 
@@ -654,6 +696,24 @@ development:
   # 禁用 PTY（测试用）
   # 环境变量: XENON_NO_PT
   no_pty: false
+
+# ========================================
+# 智能路由配置
+# ========================================
+auto_route:
+  # 是否启用智能路由
+  # 环境变量: XENON_AUTO_ROUTE
+  enabled: false
+
+  # 低于此置信度时不切换范式
+  # 环境变量: XENON_AUTO_ROUTE_CONFIDENCE
+  confidence_threshold: 0.6
+
+  # 切换范式时是否通知用户
+  notify_user: true
+
+  # 是否只在新范式更强时切换
+  switch_only_on_improvement: true
 
 # ========================================
 # LLM 意图分类器配置
