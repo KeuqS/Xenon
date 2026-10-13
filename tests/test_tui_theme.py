@@ -10,12 +10,29 @@ from prompt_toolkit.keys import Keys
 
 from xenon.repl.context_manager import ContextManager
 from xenon.repl.model_registry import ModelRegistry
-from xenon.repl.repl import REPL, _PROMPT_STYLE, _build_pt_style
+from xenon.repl.repl import REPL, _build_pt_style
 from xenon.repl.status_bar import StatusBar
 
 
 def _bar() -> StatusBar:
     return StatusBar(Console(file=io.StringIO()), ContextManager(), ModelRegistry())
+
+
+EXPECTED_DEFAULT_PT_STYLE = {
+    "prompt": "bold #67e8f9",
+    "input.rule": "#334155",
+    "bottom-toolbar": "noreverse",
+    "bottom-toolbar.text": "#94a3b8",
+    "toolbar.separator": "#475569",
+    "toolbar.model": "#cbd5e1",
+    "toolbar.mode": "#c4b5fd",
+    "toolbar.good": "bold #86efac",
+    "toolbar.warning": "bold #fcd34d",
+    "toolbar.danger": "bold #fda4af",
+    "toolbar.notice": "bold #fde68a",
+    "toolbar.muted": "#94a3b8",
+    "toolbar.hint": "#64748b italic",
+}
 
 
 def test_toolbar_has_api_model_and_context_fragments():
@@ -76,7 +93,7 @@ def test_prompt_style_honors_no_color_including_empty_value(monkeypatch):
 
 def test_prompt_style_keeps_existing_palette_when_no_color_is_unset(monkeypatch):
     monkeypatch.delenv("NO_COLOR", raising=False)
-    assert _build_pt_style() == _PROMPT_STYLE
+    assert _build_pt_style() == EXPECTED_DEFAULT_PT_STYLE
 
 
 def test_rich_honors_no_color(monkeypatch):
