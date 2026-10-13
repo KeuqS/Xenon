@@ -114,6 +114,7 @@ xenon
 | `XENON_CHECKPOINT_STEPS` | 检查点窗口大小 | = 步数上限 |
 | `XENON_MAX_TOKENS` | 单次 LLM 调用输出上限 | 8192 |
 | `XENON_MAX_CONTINUATIONS` | 截断自动续写次数 | 3 |
+| `NO_COLOR` | 标准环境变量；让输出和输入提示不使用颜色 | 未设置 |
 | `XENON_READ_ONLY` | 只读模式（禁止一切写/执行工具） | 关 |
 | `XENON_COMMAND_ALLOWLIST` | 命令首词白名单（逗号分隔） | 空=不限 |
 | `XENON_SESSION_EVENTS(_DIR)` | 事件日志（哈希链）开关/目录 | 开 |

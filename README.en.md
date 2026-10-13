@@ -114,6 +114,7 @@ user input → single semantic channel (TurnContract: LLM intent classifier + re
 | `XENON_CHECKPOINT_STEPS` | Checkpoint window size | = step cap |
 | `XENON_MAX_TOKENS` | Max output tokens per LLM call | 8192 |
 | `XENON_MAX_CONTINUATIONS` | Auto-continuations after truncation | 3 |
+| `NO_COLOR` | Standard flag; renders output and prompt without color | unset |
 | `XENON_READ_ONLY` | Read-only mode (all write/exec tools disabled) | off |
 | `XENON_COMMAND_ALLOWLIST` | Command first-word allowlist (comma-separated) | empty = unrestricted |
 | `XENON_SESSION_EVENTS(_DIR)` | Event log (hash chain) toggle/directory | on |

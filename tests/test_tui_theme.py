@@ -10,7 +10,7 @@ from prompt_toolkit.keys import Keys
 
 from xenon.repl.context_manager import ContextManager
 from xenon.repl.model_registry import ModelRegistry
-from xenon.repl.repl import REPL
+from xenon.repl.repl import REPL, _PROMPT_STYLE, _build_pt_style
 from xenon.repl.status_bar import StatusBar
 
 
@@ -55,6 +55,35 @@ def test_prompt_keeps_rule_and_status_with_the_input():
 
     buffer_window = main_stack.children[1].content
     assert buffer_window.height() == 1
+
+
+def test_prompt_style_honors_no_color_including_empty_value(monkeypatch):
+    captured_styles = []
+
+    class FakePromptSession:
+        def __init__(self, **kwargs):
+            captured_styles.append(kwargs["style"])
+
+    monkeypatch.setattr("xenon.repl.repl.PromptSession", FakePromptSession)
+    monkeypatch.setattr(REPL, "_install_input_lower_rule", lambda self: None)
+
+    for value in ("1", ""):
+        monkeypatch.setenv("NO_COLOR", value)
+        assert _build_pt_style() == {}
+        REPL()
+        assert captured_styles[-1].style_rules == []
+
+
+def test_prompt_style_keeps_existing_palette_when_no_color_is_unset(monkeypatch):
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    assert _build_pt_style() == _PROMPT_STYLE
+
+
+def test_rich_honors_no_color(monkeypatch):
+    monkeypatch.setenv("NO_COLOR", "1")
+    output = io.StringIO()
+    Console(file=output, force_terminal=True).print("[green]ok[/green]")
+    assert "\x1b[" not in output.getvalue()
 
 
 def test_ctrl_o_suspends_prompt_toolkit_before_rendering(monkeypatch):
